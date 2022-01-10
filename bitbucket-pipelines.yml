@@ -1,0 +1,115 @@
+image: robusdockerhub/kube-base-image
+
+pipelines:
+  custom:
+    write-to-dev-secretsmanager:
+      - step:
+          name: Write dev terraform output to SM
+          deployment: dev-secretsmanager
+          script:
+            - source ci-scripts/env.sh $SECRET_KEY
+            - openssl enc -nosalt -aes-256-cbc -d -in .terraformrc.sec -base64 -K $SSL_KEY -iv $SSL_IV -out .terraformrc
+            - make terraform-init
+            - make terraform-output | python3 ci-scripts/tfoutput.py AWS_REGION=${TF_VAR_region} > output.json
+            - aws secretsmanager put-secret-value --secret-id singularkey/dev/terraformoutput  --secret-string file://output.json
+    write-to-prod-secretsmanager:
+      - step:
+          name: Write prod terraform output to SM
+          deployment: prod-secretsmanager
+          script:
+            - source ci-scripts/env.sh $SECRET_KEY
+            - openssl enc -nosalt -aes-256-cbc -d -in .terraformrc.sec -base64 -K $SSL_KEY -iv $SSL_IV -out .terraformrc
+            - make terraform-init
+            - make terraform-output | python3 ci-scripts/tfoutput.py AWS_REGION=${TF_VAR_region} > output.json
+            - aws secretsmanager put-secret-value --secret-id singularkey/prod/terraformoutput  --secret-string file://output.json
+
+    destroy-dev:
+      - step:
+          name: Plan terraform destroy
+          deployment: dev-plan
+          script:
+            - source ci-scripts/env.sh $SECRET_KEY
+            - openssl enc -nosalt -aes-256-cbc -d -in .terraformrc.sec -base64 -K $SSL_KEY -iv $SSL_IV -out .terraformrc
+            - make terraform-lint
+            - make terraform-destroy-plan-out
+            - aws s3 cp destroy-plan.tfstate s3://singularkey-terraform-plans/infrastructure-destroy-plan-${BITBUCKET_BUILD_NUMBER}.tfstate
+      - step:
+          name: Destroy resources
+          deployment: dev-destroy
+          trigger: manual
+          script:
+            - source ci-scripts/env.sh $SECRET_KEY
+            - openssl enc -nosalt -aes-256-cbc -d -in .terraformrc.sec -base64 -K $SSL_KEY -iv $SSL_IV -out .terraformrc
+            - aws s3 cp s3://singularkey-terraform-plans/infrastructure-destroy-plan-${BITBUCKET_BUILD_NUMBER}.tfstate destroy-plan.tfstate
+            - make terraform-destroy-from-outfile
+    destroy-prod:
+      - step:
+          name: Plan terraform destroy
+          deployment: prod-plan
+          script:
+            - source ci-scripts/env.sh $SECRET_KEY
+            - openssl enc -nosalt -aes-256-cbc -d -in .terraformrc.sec -base64 -K $SSL_KEY -iv $SSL_IV -out .terraformrc
+            - make terraform-lint
+            - make terraform-destroy-plan-out
+            - aws s3 cp destroy-plan.tfstate s3://prod-singularkey-terraform-plans/prod-infrastructure-destroy-plan-${BITBUCKET_BUILD_NUMBER}.tfstate
+      - step:
+          name: Destroy resources
+          deployment: prod-destroy
+          trigger: manual
+          script:
+            - source ci-scripts/env.sh $SECRET_KEY
+            - openssl enc -nosalt -aes-256-cbc -d -in .terraformrc.sec -base64 -K $SSL_KEY -iv $SSL_IV -out .terraformrc
+            - aws s3 cp s3://prod-singularkey-terraform-plans/prod-infrastructure-destroy-plan-${BITBUCKET_BUILD_NUMBER}.tfstate destroy-plan.tfstate
+            - make terraform-destroy-from-outfile
+
+  branches:
+    dev:
+      - step:
+          name: Lint and Plan
+          deployment: dev-plan
+          script:
+            - source ci-scripts/env.sh $SECRET_KEY
+            - openssl enc -nosalt -aes-256-cbc -d -in .terraformrc.sec -base64 -K $SSL_KEY -iv $SSL_IV -out .terraformrc
+            - make terraform-lint
+            - make terraform-plan-out
+            - aws s3 cp plan.tfstate s3://singularkey-terraform-plans/infrastructure-plan-${BITBUCKET_BUILD_NUMBER}.tfstate
+      - step:
+          name: Apply terraform plan
+          deployment: dev-apply
+          trigger: manual
+          script:
+            - source ci-scripts/env.sh $SECRET_KEY
+            - openssl enc -nosalt -aes-256-cbc -d -in .terraformrc.sec -base64 -K $SSL_KEY -iv $SSL_IV -out .terraformrc
+            - aws s3 cp s3://singularkey-terraform-plans/infrastructure-plan-${BITBUCKET_BUILD_NUMBER}.tfstate plan.tfstate
+            - make terraform-apply-from-outfile
+    staging:
+      - step:
+          name: Lint and Plan
+          deployment: staging-plan
+          script:
+            - source ci-scripts/env.sh $SECRET_KEY
+            - openssl enc -nosalt -aes-256-cbc -d -in .terraformrc.sec -base64 -K $SSL_KEY -iv $SSL_IV -out .terraformrc
+            - make terraform-lint
+            - make terraform-plan-out
+            - aws s3 cp plan.tfstate s3://singularkey-terraform-plans/staging-infrastructure-plan-${BITBUCKET_BUILD_NUMBER}.tfstate
+
+
+    master:
+      - step:
+          name: Lint and Plan
+          deployment: prod-plan
+          script:
+            - source ci-scripts/env.sh $SECRET_KEY
+            - openssl enc -nosalt -aes-256-cbc -d -in .terraformrc.sec -base64 -K $SSL_KEY -iv $SSL_IV -out .terraformrc
+            - make terraform-lint
+            - make terraform-plan-out
+            - aws s3 cp plan.tfstate s3://prod-singularkey-terraform-plans/prod-infrastructure-plan-${BITBUCKET_BUILD_NUMBER}.tfstate
+      - step:
+          name: Apply terraform plan
+          deployment: prod-apply
+          trigger: manual
+          script:
+            - source ci-scripts/env.sh $SECRET_KEY
+            - openssl enc -nosalt -aes-256-cbc -d -in .terraformrc.sec -base64 -K $SSL_KEY -iv $SSL_IV -out .terraformrc
+            - aws s3 cp s3://prod-singularkey-terraform-plans/prod-infrastructure-plan-${BITBUCKET_BUILD_NUMBER}.tfstate plan.tfstate
+            - make terraform-apply-from-outfile
