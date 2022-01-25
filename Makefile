@@ -44,8 +44,6 @@ NC = \033[0m
 help:
 	@printf "Available targets:\n\n"
 	@$(SELF) -s help-generate
-	@printf "Available docker targets:\n\n"
-	@$(SELF) -s help-generate-docker
 
 ## Show current override file path
 current:
