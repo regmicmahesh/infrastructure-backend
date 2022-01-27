@@ -68,7 +68,7 @@ variable "ssh_user" {
 }
 
 variable "user_data" {
-  type        = list
+  type        = list(any)
   default     = []
   description = "User data content"
 }

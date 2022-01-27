@@ -14,12 +14,12 @@ terraform {
   # Workspace provides us the way to maintain multiple terraform states in remote
   # backend. It also provides a global name `terraform.workspace` that might be able to
   # differentiate resource in aws based on environment or workspace we are in.
- // backend "remote" {
- //   hostname     = "app.terraform.io"
- //   organization = "x"
- //   # For multiple workspace support
- //   workspaces {
- //     prefix = "infrastructure-"
- //   }
- // }
+  // backend "remote" {
+  //   hostname     = "app.terraform.io"
+  //   organization = "x"
+  //   # For multiple workspace support
+  //   workspaces {
+  //     prefix = "infrastructure-"
+  //   }
+  // }
 }

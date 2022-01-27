@@ -24,10 +24,10 @@ resource "aws_iam_role" "amplify-role" {
 }
 
 resource "aws_iam_role_policy" "amplify-policy" {
-  name = "${var.prefix}-${var.app_name}-Policy"
-  role = aws_iam_role.amplify-role.name
+  name   = "${var.prefix}-${var.app_name}-Policy"
+  role   = aws_iam_role.amplify-role.name
   policy = data.aws_iam_policy_document.amplify-role-policy.json
-  
+
 }
 
 

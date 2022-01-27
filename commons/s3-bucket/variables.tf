@@ -52,7 +52,7 @@ variable "region" {
 }
 
 variable "bucket_name" {
-  type        = "string"
+  type        = string
   default     = ""
   description = "Unique Name for S3 Bucket"
 }

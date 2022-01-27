@@ -51,7 +51,7 @@ variable "github_branch" {
 variable "oauth_token" {
   type        = string
   description = "Access Token for repository. (Bitbucket).  Needs repo access at a minimum"
-  default = null
+  default     = null
 }
 
 variable "domain_name" {
@@ -72,12 +72,12 @@ variable "auto_build" {
 }
 
 variable "enabled" {
-  type = bool
+  type    = bool
   default = true
 }
 
 variable "environment_variables" {
-  type = map(string)
+  type        = map(string)
   description = "The environment variables map for an Amplify app."
-  default = null
+  default     = null
 }

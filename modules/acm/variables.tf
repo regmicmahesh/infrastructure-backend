@@ -35,14 +35,14 @@ variable "tags" {
 }
 
 variable "acm_domain_name" {
-  type = "string"
+  type = string
 }
 
 variable "acm_alternate_domain_names" {
-  type    = "list"
+  type    = list(string)
   default = []
 }
 
 variable "route53_root_domain" {
-  type = "string"
+  type = string
 }
