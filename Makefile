@@ -6,7 +6,7 @@ TMP ?= /tmp
 OS ?= $(shell uname -s | tr '[:upper:]' '[:lower:]')
 APP_ROOT ?= $(shell 'pwd')
 TERRAFORM ?= $(APP_ROOT)/vendor/terraform
-TERRAFORM_VERSION ?= 0.12.10
+TERRAFORM_VERSION ?= 1.0.9
 TERRAFORM_URL ?= https://releases.hashicorp.com/terraform/$(TERRAFORM_VERSION)/terraform_$(TERRAFORM_VERSION)_$(OS)_amd64.zip
 # export README_DEPS ?= docs/targets.md docs/terraform.md
 TARGETS_DOC_PATH ?= docs/targets.md
@@ -44,8 +44,6 @@ NC = \033[0m
 help:
 	@printf "Available targets:\n\n"
 	@$(SELF) -s help-generate
-	@printf "Available docker targets:\n\n"
-	@$(SELF) -s help-generate-docker
 
 ## Show current override file path
 current:
