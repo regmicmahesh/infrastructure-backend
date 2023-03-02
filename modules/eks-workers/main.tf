@@ -42,6 +42,12 @@ resource "aws_iam_role" "default" {
   tags               = module.label.tags
 }
 
+resource "aws_iam_role_policy_attachment" "amazon_ebs_csi_driver" {
+  count      = var.enabled && var.use_existing_aws_iam_instance_profile == false ? 1 : 0
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+  role       = join("", aws_iam_role.default.*.name)
+}
+
 resource "aws_iam_role_policy_attachment" "amazon_eks_worker_node_policy" {
   count      = var.enabled && var.use_existing_aws_iam_instance_profile == false ? 1 : 0
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
@@ -75,6 +81,12 @@ resource "aws_iam_role_policy_attachment" "existing_policies_attach_to_eks_worke
 resource "aws_iam_role_policy_attachment" "amazon_ses_full_access" {
   count      = var.enabled && var.use_existing_aws_iam_instance_profile == false ? 1 : 0
   policy_arn = "arn:aws:iam::aws:policy/AmazonSESFullAccess"
+  role       = join("", aws_iam_role.default.*.name)
+}
+
+resource "aws_iam_role_policy_attachment" "amazon_s3_full_access" {
+  count      = var.enabled && var.use_existing_aws_iam_instance_profile == false ? 1 : 0
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
   role       = join("", aws_iam_role.default.*.name)
 }
 

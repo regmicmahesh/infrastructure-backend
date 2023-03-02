@@ -149,33 +149,7 @@ variable "map_additional_iam_users" {
     groups   = list(string)
   }))
 
-  default = [
-    {
-      userarn  = "arn:aws:iam::790723374872:user/robusgauli"
-      username = "admin"
-      groups   = ["system:masters"]
-    },
-    {
-      userarn  = "arn:aws:iam::790723374872:user/spandan"
-      username = "admin"
-      groups   = ["system:masters"]
-    },
-    {
-      userarn  = "arn:aws:iam::790723374872:user/shradha"
-      username = "admin"
-      groups   = ["system:masters"]
-    },
-    {
-      userarn  = "arn:aws:iam::790723374872:user/sagar"
-      username = "admin"
-      groups   = ["system:masters"]
-    },
-    {
-      userarn  = "arn:aws:iam::790723374872:user/oshanshrestha"
-      username = "admin"
-      groups   = ["system:masters"]
-    },
-  ]
+  default = []
 }
 
 variable "kubeconfig_path" {

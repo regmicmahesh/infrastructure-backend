@@ -1,7 +1,4 @@
 locals {
-  # The usage of the specific kubernetes.io/cluster/* resource tags below are required
-  # for EKS and Kubernetes to discover and manage networking resources
-  # https://www.terraform.io/docs/providers/aws/guides/eks-getting-started.html#base-vpc-networking
   tags = merge(module.label.tags, {
     "kubernetes.io/cluster/${module.label.id}" = "shared" }
   )
@@ -90,7 +87,6 @@ module "eks_cluster" {
   subnet_ids         = module.subnets.public_subnet_ids
   kubernetes_version = var.kubernetes_version
 
-  # `workers_security_group_count` is needed to prevent `count can't be computed` errors
   workers_security_group_ids = [
   module.eks_workers.security_group_id]
   workers_security_group_count = 1
@@ -160,3 +156,51 @@ module "bastion_hosts" {
   max_size         = 2
   desired_capacity = 1
 }
+
+module "s3" {
+  source = "./modules/s3"
+
+  tags       = var.tags
+  namespace  = var.namespace
+  name       = var.name
+  stage      = var.stage
+  delimiter  = var.delimiter
+  attributes = compact(concat(var.attributes, ["cluster"]))
+
+  bucket_suffix = "file-uploads"
+}
+
+
+
+resource "random_string" "db_username" {
+  length  = 8
+  special = false
+}
+
+resource "random_string" "db_password" {
+  length  = 16
+  special = false
+}
+#
+# module "aurora-db" {
+#   source = "./modules/rds"
+#
+#   tags  = module.label.tags
+#   name  = module.label.name
+#   stage = module.label.stage
+#
+#   database_name   = replace(module.label.name, "-", "_")
+#   master_username = random_string.db_username.result
+#   master_password = random_string.db_password.result
+#   subnet_ids      = module.subnets.private_subnet_ids
+#   min_capacity    = 2
+#   max_capacity    = 4
+#
+#   vpc_id = module.vpc.vpc_id
+#
+#   allowed_security_groups = [
+#     module.eks_workers.security_group_id,
+#     module.bastion_hosts.bastion_security_group_id
+#   ]
+# }
+

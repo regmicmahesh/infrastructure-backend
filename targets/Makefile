@@ -19,7 +19,7 @@ terraform-list-workspace:
 
 ## Generate terraform plan
 terraform-plan: terraform-init
-	@terraform plan
+	@terraform plan 
 
 ## Generate terraform plan out to the file `plan.tfstate`
 terraform-plan-out: terraform-init

@@ -110,7 +110,7 @@ variable "eks_worker_ami_name_filter" {
 variable "eks_worker_ami_name_regex" {
   type        = string
   description = "A regex string to apply to the AMI list returned by AWS"
-  default     = "^amazon-eks-node-1.15-v\\d{8}$"
+  default     = "^amazon-eks-node-1.23-v\\d{8}$"
 }
 
 variable "instance_type" {

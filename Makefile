@@ -20,7 +20,7 @@ KUBECTL_VERSION ?= v1.16.2
 KUBECTL_URL ?= https://dl.k8s.io/$(KUBECTL_VERSION)/bin/$(OS)/amd64/kubectl
 
 
-export ENVIRONMENT_OVERRIDE_PATH ?= $(APP_ROOT)/env/Makefile.override.dev
+export ENVIRONMENT_OVERRIDE_PATH ?= $(APP_ROOT)/env/Makefile.override.$(STAGE)
 
 include $(APP_ROOT)/env/Makefile
 -include $(ENVIRONMENT_OVERRIDE_PATH)
@@ -66,6 +66,7 @@ DOCKER_RUN ?=  \
 		--env TF_WORKSPACE=$(TF_WORKSPACE) \
 		--env TF_VAR_region=$(TF_VAR_region) \
 		--env TF_VAR_route53_root_domain_name=$(TF_VAR_route53_root_domain_name) \
+		--env STAGE=$(STAGE) \
 		--env TF_VAR_stage=$(TF_VAR_stage) \
 		$(IMAGE_NAME) \
 
